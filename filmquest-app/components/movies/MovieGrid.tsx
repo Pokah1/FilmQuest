@@ -1,9 +1,9 @@
 import Button from "@/components/commons/Button";
 import MovieCard from "@/components/commons/MovieCard";
-import { MoviesProps } from "@/interfaces";
+import { MovieProps } from "@/interfaces";
 
 interface Props {
-  movies: MoviesProps[];
+  movies: MovieProps[];
   onNext: () => void;
   onPrev: () => void;
 }
@@ -14,9 +14,9 @@ const MovieGrid: React.FC<Props> = ({ movies, onNext, onPrev }) => (
       {movies.map((movie) => (
         <MovieCard
           key={movie.id}
-          title={movie.titleText.text}
-          posterImage={movie.primaryImage?.url ?? null}
-          releaseYear={movie.releaseYear.year}
+          title={movie.title}
+          posterImage={movie.posterImage}
+          releaseYear={movie.releaseYear}
         />
       ))}
     </div>
@@ -27,7 +27,7 @@ const MovieGrid: React.FC<Props> = ({ movies, onNext, onPrev }) => (
       </p>
     )}
 
-    <div className="flex justify-end space-x-4 mt-6">
+    <div className="flex justify-end space-x-4 mt-6 pb-10">
       <Button title="Previous" action={onPrev} />
       <Button title="Next" action={onNext} />
     </div>

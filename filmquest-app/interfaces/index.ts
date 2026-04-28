@@ -13,33 +13,23 @@ export interface ButtonProps {
   action?: () => void;
 }
 
-// ─── API response shape (from moviesdatabase RapidAPI) ─────────────────────
+// ─── TMDB API response shape ───────────────────────────────────────────────
 
-interface PrimaryImage {
-  url: string | null;
-}
-
-interface TitleText {
-  text: string;
-}
-
-interface ReleaseYear {
-  year: string;
-}
-
-/** Raw shape returned by the RapidAPI moviesdatabase endpoint */
+/** Raw shape returned by TMDB /discover/movie */
 export interface MoviesProps {
-  id: string;
-  primaryImage: PrimaryImage | null;
-  titleText: TitleText;
-  releaseYear: ReleaseYear;
+  id: number;
+  title: string;
+  poster_path: string | null;   // e.g. "/abc123.jpg" — prepend TMDB image base URL
+  release_date: string;         // e.g. "2024-03-01"
+  vote_average: number;
+  overview: string;
+  genre_ids: number[];
 }
 
-// ─── UI card props (flattened from MoviesProps for display) ─────────────────
+// ─── UI card props (flattened for <MovieCard>) ─────────────────────────────
 
-/** Flat props used by <MovieCard> after mapping from MoviesProps */
 export interface MovieProps {
-  id?: string;
+  id?: number;
   posterImage: string | null;
   releaseYear: string;
   title: string;

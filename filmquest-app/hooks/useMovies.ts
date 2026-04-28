@@ -12,6 +12,7 @@ interface UseMoviesReturn {
   setGenre: (genre: string) => void;
   goToNextPage: () => void;
   goToPrevPage: () => void;
+  error: string | null;
 }
 
 export function useMovies(): UseMoviesReturn {
@@ -20,9 +21,11 @@ export function useMovies(): UseMoviesReturn {
   const [genre, setGenre] = useState<string>("All");
   const [movies, setMovies] = useState<MoviesProps[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchMovies = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const response = await fetch("/api/fetch-movies", {
         method: "POST",
@@ -34,12 +37,20 @@ export function useMovies(): UseMoviesReturn {
         headers: { "Content-Type": "application/json; charset=utf-8" },
       });
 
-      if (!response.ok) throw new Error("Failed to fetch movies");
-
       const data = await response.json();
+
+      if (!response.ok) {
+        // Log the actual TMDB error message so we can see what's wrong
+        console.error("API error response:", data);
+        setError(data.error ?? "Failed to fetch movies");
+        setMovies([]);
+        return;
+      }
+
       setMovies(data.movies ?? []);
-    } catch (error) {
-      console.error("useMovies error:", error);
+    } catch (err) {
+      console.error("useMovies fetch error:", err);
+      setError("Network error — could not reach the server");
       setMovies([]);
     } finally {
       setLoading(false);
@@ -50,7 +61,6 @@ export function useMovies(): UseMoviesReturn {
     fetchMovies();
   }, [fetchMovies]);
 
-  // Reset to page 1 when filters change
   const handleSetYear = (newYear: number | null) => {
     setPage(1);
     setYear(newYear);
@@ -67,6 +77,7 @@ export function useMovies(): UseMoviesReturn {
     page,
     year,
     genre,
+    error,
     setPage,
     setYear: handleSetYear,
     setGenre: handleSetGenre,
