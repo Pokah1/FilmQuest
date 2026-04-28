@@ -1,36 +1,52 @@
 import { ReactNode } from "react";
 
+// ─── Layout ────────────────────────────────────────────────────────────────
+
 export interface ComponentProps {
-  children: ReactNode
+  children: ReactNode;
 }
+
+// ─── UI Components ─────────────────────────────────────────────────────────
 
 export interface ButtonProps {
-  title: string
-  action?: () => void
+  title: string;
+  action?: () => void;
 }
 
-export interface MovieProps {
-  id?: string
-  posterImage: string
-  releaseYear: string
-  title: string
-}
+// ─── API response shape (from moviesdatabase RapidAPI) ─────────────────────
 
 interface PrimaryImage {
-  url: string
+  url: string | null;
 }
 
 interface TitleText {
-  text: string
+  text: string;
 }
 
 interface ReleaseYear {
-  year: string
+  year: string;
 }
 
+/** Raw shape returned by the RapidAPI moviesdatabase endpoint */
 export interface MoviesProps {
-  id: string
-  primaryImage: PrimaryImage
-  titleText: TitleText
-  releaseYear: ReleaseYear
+  id: string;
+  primaryImage: PrimaryImage | null;
+  titleText: TitleText;
+  releaseYear: ReleaseYear;
+}
+
+// ─── UI card props (flattened from MoviesProps for display) ─────────────────
+
+/** Flat props used by <MovieCard> after mapping from MoviesProps */
+export interface MovieProps {
+  id?: string;
+  posterImage: string | null;
+  releaseYear: string;
+  title: string;
+}
+
+// ─── Page-level props ──────────────────────────────────────────────────────
+
+export interface MoviesPageProps {
+  movies: MoviesProps[];
 }

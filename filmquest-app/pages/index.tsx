@@ -1,43 +1,29 @@
-import Button from "@/components/commons/Button";
 import { useRouter } from "next/router";
+import globalStyles from "@/components/home/globalStyles";
+import HeroSection from "@/components/home/HeroSection";
+import MovieTicker from "@/components/home/Movieticker ";
+import MovieShowcase from "@/components/home/Movieshowcase ";
+import JoinCTA from "@/components/home/Joincta ";
+
 const Home: React.FC = () => {
   const router = useRouter();
+  const goToMovies = () => router.push("/movies", undefined, { shallow: false });
 
   return (
-    <div className="bg-[#171D22] text-white">
-      <section
-        className="h-screen bg-cover bg-center"
-        style={{
-          backgroundImage:
-            'url("https://themebeyond.com/html/movflx/img/bg/breadcrumb_bg.jpg")',
-        }}
-      >
-        <div className="bg-black bg-opacity-50 h-full flex flex-col justify-center items-center text-center">
-          <h1 className="text-5xl md:text-7xl font-bold mb-8">
-            Discover Your Next Favorite{" "}
-            <span className="text-[#E2D609]">Movie</span>
-          </h1>
-          <p className="text-lg md:text-2xl mb-8 max-w-2xl">
-            Explore the latest blockbuster movies, critically acclaimed films,
-            and your personal favorites – all in one place.
-          </p>
-          <Button
-            title="Browse Movies"
-            action={() => router.push("/movies", undefined, { shallow: false })}
-          />
-        </div>
-      </section>
+    <div
+      style={{
+        background: "#0A0C10",
+        color: "white",
+        fontFamily: "'Georgia', serif",
+        overflowX: "hidden",
+      }}
+    >
+      <style>{globalStyles}</style>
 
-      <section className="py-16 px-8 md:px-44 bg-[#121018] text-center">
-        <h2 className="text-3xl md:text-5xl font-semibold mb-8">
-          Join CineSeek Now!
-        </h2>
-        <p className="text-lg md:text-2xl mb-12">
-          Sign up today to get access to the latest movies, exclusive content,
-          and personalized movie recommendations.
-        </p>
-        <Button title="Get Started" />
-      </section>
+      <HeroSection onBrowse={goToMovies} />
+      <MovieTicker />
+      <MovieShowcase onViewAll={goToMovies} />
+      <JoinCTA />
     </div>
   );
 };
