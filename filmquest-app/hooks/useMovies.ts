@@ -1,3 +1,4 @@
+import { cache } from "@/lib/cache";
 import { MoviesProps } from "@/interfaces";
 import { useCallback, useEffect, useState } from "react";
 
@@ -7,12 +8,12 @@ interface UseMoviesReturn {
   page: number;
   year: number | null;
   genre: string;
+  error: string | null;
   setPage: (page: number) => void;
   setYear: (year: number | null) => void;
   setGenre: (genre: string) => void;
   goToNextPage: () => void;
   goToPrevPage: () => void;
-  error: string | null;
 }
 
 export function useMovies(): UseMoviesReturn {
@@ -24,8 +25,19 @@ export function useMovies(): UseMoviesReturn {
   const [error, setError] = useState<string | null>(null);
 
   const fetchMovies = useCallback(async () => {
+    const cacheKey = `movies:${page}:${year}:${genre}`;
+
+    // Return cached result immediately — no API call
+    const cached = cache.get<MoviesProps[]>(cacheKey);
+    if (cached) {
+      console.log(`[cache hit] ${cacheKey}`);
+      setMovies(cached);
+      return;
+    }
+
     setLoading(true);
     setError(null);
+
     try {
       const response = await fetch("/api/fetch-movies", {
         method: "POST",
@@ -40,16 +52,17 @@ export function useMovies(): UseMoviesReturn {
       const data = await response.json();
 
       if (!response.ok) {
-        // Log the actual TMDB error message so we can see what's wrong
-        console.error("API error response:", data);
+        console.error("API error:", data);
         setError(data.error ?? "Failed to fetch movies");
         setMovies([]);
         return;
       }
 
-      setMovies(data.movies ?? []);
+      const results = data.movies ?? [];
+      cache.set(cacheKey, results); // store for next visit
+      setMovies(results);
     } catch (err) {
-      console.error("useMovies fetch error:", err);
+      console.error("useMovies error:", err);
       setError("Network error — could not reach the server");
       setMovies([]);
     } finally {

@@ -9,39 +9,108 @@ interface Props {
 }
 
 const MovieFilters: React.FC<Props> = ({ year, genre, onYearChange, onGenreChange }) => (
-  <div className="py-16">
-    {/* Search + Year row */}
-    <div className="flex flex-col md:flex-row justify-between mb-4 items-center space-x-0 md:space-x-4">
-      <input
-        type="text"
-        placeholder="Search for a movie..."
-        className="border-2 w-full md:w-96 border-[#E2D609] outline-none bg-transparent px-4 py-2 rounded-full text-white placeholder-gray-400"
-      />
-      <select
-        value={year ?? ""}
-        onChange={(e) =>
-          onYearChange(e.target.value ? Number(e.target.value) : null)
-        }
-        className="border-2 border-[#E2D609] outline-none bg-transparent px-4 md:px-8 py-2 mt-4 md:mt-0 rounded-full w-full md:w-auto"
-      >
-        <option value="">Select Year</option>
-        {YEAR_OPTIONS.map((y) => (
-          <option value={y} key={y}>
-            {y}
-          </option>
-        ))}
-      </select>
+  <div style={{ paddingTop: 56, paddingBottom: 48 }}>
+    <style>{`
+      @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap');
+      .filter-input::placeholder { color: rgba(255,255,255,0.25); }
+      .filter-input:focus { border-color: #E2D609 !important; outline: none; }
+      .filter-select option { background: #110F17; color: white; }
+    `}</style>
+
+    {/* Page heading */}
+    <div style={{ marginBottom: 48 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 12 }}>
+        <div style={{ width: 36, height: 1, background: "#E2D609" }} />
+        <span style={{
+          fontFamily: "sans-serif", fontSize: 10,
+          letterSpacing: "0.3em", textTransform: "uppercase",
+          color: "#E2D609",
+        }}>
+          Online Streaming
+        </span>
+      </div>
+      <h1 style={{
+        margin: 0,
+        fontFamily: "'Bebas Neue', sans-serif",
+        fontSize: "clamp(3.5rem, 8vw, 7rem)",
+        fontWeight: 400, lineHeight: 0.9,
+        letterSpacing: "0.02em", color: "#fff",
+      }}>
+        {genre !== "All" ? genre : "All"}{" "}
+        <span style={{ color: "#E2D609" }}>Movies</span>
+        {year && (
+          <span style={{
+            display: "block",
+            fontFamily: "'Cormorant Garamond', serif",
+            fontStyle: "italic", fontWeight: 300,
+            fontSize: "clamp(1.2rem, 3vw, 2.2rem)",
+            color: "rgba(255,255,255,0.35)",
+            letterSpacing: "0.05em", marginTop: 8,
+          }}>
+            {year} Collection
+          </span>
+        )}
+      </h1>
     </div>
 
-    {/* Title + Genre buttons row */}
-    <p className="text-[#E2D609] text-xl mb-6 mt-6">Online streaming</p>
-    <div className="flex flex-col md:flex-row items-center justify-between">
-      <h1 className="text-lg md:text-6xl font-bold">
-        {year ?? ""} {genre !== "All" ? genre : ""} Movie List
-      </h1>
-      <div className="flex flex-wrap gap-2 mt-4 md:mt-0">
+    {/* Divider */}
+    <div style={{ height: 1, background: "linear-gradient(to right, #E2D60944, transparent)", marginBottom: 36 }} />
+
+    {/* Controls row */}
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "center", justifyContent: "space-between" }}>
+
+      {/* Search + Year */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
+        <div style={{ position: "relative" }}>
+          <span style={{
+            position: "absolute", left: 16, top: "50%",
+            transform: "translateY(-50%)",
+            color: "rgba(255,255,255,0.25)", fontSize: 14,
+          }}>⌕</span>
+          <input
+            type="text"
+            placeholder="Search titles..."
+            className="filter-input"
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: 3, padding: "10px 16px 10px 38px",
+              color: "#fff", fontFamily: "sans-serif",
+              fontSize: 13, width: 220,
+              transition: "border-color 0.2s",
+            }}
+          />
+        </div>
+
+        <select
+          value={year ?? ""}
+          onChange={(e) => onYearChange(e.target.value ? Number(e.target.value) : null)}
+          className="filter-select"
+          style={{
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            borderRadius: 3, padding: "10px 20px",
+            color: year ? "#fff" : "rgba(255,255,255,0.3)",
+            fontFamily: "sans-serif", fontSize: 13,
+            cursor: "pointer",
+            transition: "border-color 0.2s",
+          }}
+        >
+          <option value="">All Years</option>
+          {YEAR_OPTIONS.map((y) => (
+            <option key={y} value={y}>{y}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Genre buttons — using your Button component */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {GENRE_OPTIONS.map((g) => (
-          <Button key={g} title={g} action={() => onGenreChange(g)} />
+          <Button
+            key={g}
+            title={g}
+            action={() => onGenreChange(g)}
+          />
         ))}
       </div>
     </div>

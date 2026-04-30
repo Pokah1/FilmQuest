@@ -14,6 +14,7 @@ const MovieGrid: React.FC<Props> = ({ movies, onNext, onPrev }) => (
       {movies.map((movie) => (
         <MovieCard
           key={movie.id}
+          id={movie.id}        
           title={movie.title}
           posterImage={movie.posterImage}
           releaseYear={movie.releaseYear}

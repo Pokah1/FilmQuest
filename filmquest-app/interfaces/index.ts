@@ -19,8 +19,8 @@ export interface ButtonProps {
 export interface MoviesProps {
   id: number;
   title: string;
-  poster_path: string | null;   // e.g. "/abc123.jpg" — prepend TMDB image base URL
-  release_date: string;         // e.g. "2024-03-01"
+  poster_path: string | null;
+  release_date: string;
   vote_average: number;
   overview: string;
   genre_ids: number[];
@@ -28,8 +28,9 @@ export interface MoviesProps {
 
 // ─── UI card props (flattened for <MovieCard>) ─────────────────────────────
 
+/** id is required and must be a number so the Link always resolves correctly */
 export interface MovieProps {
-  id?: number;
+  id: number;              // ← required, not optional
   posterImage: string | null;
   releaseYear: string;
   title: string;

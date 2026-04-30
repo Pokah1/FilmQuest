@@ -1,11 +1,6 @@
 
 import { NextApiRequest, NextApiResponse } from "next";
 
-
-console.log("Token present:", !!process.env.TMDB_ACCESS_TOKEN);
-console.log("Token value:", process.env.TMDB_ACCESS_TOKEN?.slice(0, 20));
-
-
 export default async function handler(
   request: NextApiRequest,
   response: NextApiResponse
