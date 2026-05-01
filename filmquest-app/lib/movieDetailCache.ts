@@ -1,13 +1,10 @@
-/**
- * Thin wrapper around the generic cache specifically for movie details.
- * Cached per movie ID so revisiting a detail page never refetches.
- */
 import { cache } from "@/lib/cache";
+import type { MovieDetail } from "@/interfaces/movie";
 
-export async function fetchMovieDetail(id: string | number) {
+export async function fetchMovieDetail(id: string): Promise<MovieDetail> {
   const cacheKey = `movie-detail:${id}`;
 
-  const cached = cache.get<unknown>(cacheKey);
+  const cached = cache.get<MovieDetail>(cacheKey);
   if (cached) {
     console.log(`[cache hit] ${cacheKey}`);
     return cached;
@@ -16,7 +13,8 @@ export async function fetchMovieDetail(id: string | number) {
   const response = await fetch(`/api/movie-detail?id=${id}`);
   if (!response.ok) throw new Error("Failed to fetch movie detail");
 
-  const data = await response.json();
+  const data: MovieDetail = await response.json();
+
   cache.set(cacheKey, data);
   return data;
 }

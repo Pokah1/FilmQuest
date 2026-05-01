@@ -8,10 +8,12 @@ interface UseMoviesReturn {
   page: number;
   year: number | null;
   genre: string;
+  search: string;
   error: string | null;
   setPage: (page: number) => void;
   setYear: (year: number | null) => void;
   setGenre: (genre: string) => void;
+  setSearch: (query: string) => void;
   goToNextPage: () => void;
   goToPrevPage: () => void;
 }
@@ -19,18 +21,17 @@ interface UseMoviesReturn {
 export function useMovies(): UseMoviesReturn {
   const [page, setPage] = useState<number>(1);
   const [year, setYear] = useState<number | null>(null);
-  const [genre, setGenre] = useState<string>("All");
+  const [genre, setGenre] = useState<string>("");
+  const [search, setSearchState] = useState<string>("");
   const [movies, setMovies] = useState<MoviesProps[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchMovies = useCallback(async () => {
-    const cacheKey = `movies:${page}:${year}:${genre}`;
+    const cacheKey = `movies:${page}:${year}:${genre}:${search}`;
 
-    // Return cached result immediately — no API call
     const cached = cache.get<MoviesProps[]>(cacheKey);
     if (cached) {
-      console.log(`[cache hit] ${cacheKey}`);
       setMovies(cached);
       return;
     }
@@ -41,59 +42,49 @@ export function useMovies(): UseMoviesReturn {
     try {
       const response = await fetch("/api/fetch-movies", {
         method: "POST",
-        body: JSON.stringify({
-          page,
-          year,
-          genre: genre === "All" ? "" : genre,
-        }),
+        body: JSON.stringify({ page, year, genre, search }),
         headers: { "Content-Type": "application/json; charset=utf-8" },
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        console.error("API error:", data);
         setError(data.error ?? "Failed to fetch movies");
         setMovies([]);
         return;
       }
 
       const results = data.movies ?? [];
-      cache.set(cacheKey, results); // store for next visit
+      cache.set(cacheKey, results);
       setMovies(results);
     } catch (err) {
       console.error("useMovies error:", err);
-      setError("Network error — could not reach the server");
+      setError("Network error");
       setMovies([]);
     } finally {
       setLoading(false);
     }
-  }, [page, year, genre]);
+  }, [page, year, genre, search]);
 
   useEffect(() => {
     fetchMovies();
   }, [fetchMovies]);
 
-  const handleSetYear = (newYear: number | null) => {
-    setPage(1);
-    setYear(newYear);
-  };
+  const handleSetYear = (newYear: number | null) => { setPage(1); setYear(newYear); };
+  const handleSetGenre = (newGenre: string) => { setPage(1); setGenre(newGenre); };
 
-  const handleSetGenre = (newGenre: string) => {
+  // Debounce search — wait 500ms after user stops typing before fetching
+  const handleSetSearch = useCallback((query: string) => {
     setPage(1);
-    setGenre(newGenre);
-  };
+    setSearchState(query);
+  }, []);
 
   return {
-    movies,
-    loading,
-    page,
-    year,
-    genre,
-    error,
+    movies, loading, page, year, genre, search, error,
     setPage,
     setYear: handleSetYear,
     setGenre: handleSetGenre,
+    setSearch: handleSetSearch,
     goToNextPage: () => setPage((p) => p + 1),
     goToPrevPage: () => setPage((p) => (p > 1 ? p - 1 : 1)),
   };
