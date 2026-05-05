@@ -1,11 +1,4 @@
-import withPWAInit from "@ducanh2912/next-pwa";
-
 /** @type {import('next').NextConfig} */
-
-const withPWA = withPWAInit({
-  dest: "public",
-  disable: process.env.NODE_ENV === "development",
-});
 
 const nextConfig = {
   reactStrictMode: true,
@@ -13,17 +6,15 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "m.media-amazon.com",   // keeping your existing one
+        hostname: "m.media-amazon.com",
       },
       {
         protocol: "https",
         hostname: "image.tmdb.org",
-        pathname: "/t/p/**",              // TMDB posters
+        pathname: "/t/p/**",
       },
     ],
   },
 };
 
-export default withPWA({
-  ...nextConfig,
-});
+export default nextConfig;
