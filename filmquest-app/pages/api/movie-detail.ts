@@ -15,28 +15,42 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   };
 
   try {
-    // Fetch movie details + credits + videos in parallel
-    const [detailRes, creditsRes, videosRes] = await Promise.all([
+    // Fetch all endpoints in parallel — added external_ids + watch/providers
+    const [detailRes, creditsRes, videosRes, externalRes, providersRes] = await Promise.all([
       fetch(`https://api.themoviedb.org/3/movie/${id}`, { headers }),
       fetch(`https://api.themoviedb.org/3/movie/${id}/credits`, { headers }),
       fetch(`https://api.themoviedb.org/3/movie/${id}/videos`, { headers }),
+      fetch(`https://api.themoviedb.org/3/movie/${id}/external_ids`, { headers }),
+      fetch(`https://api.themoviedb.org/3/movie/${id}/watch/providers`, { headers }),
     ]);
 
     if (!detailRes.ok) {
       return res.status(detailRes.status).json({ error: "Movie not found" });
     }
 
-    const [detail, credits, videos] = await Promise.all([
+    const [detail, credits, videos, external, providers] = await Promise.all([
       detailRes.json(),
       creditsRes.json(),
       videosRes.json(),
+      externalRes.json(),
+      providersRes.json(),
     ]);
 
-    // Find the official YouTube trailer
+    // Official YouTube trailer
     const trailer = videos.results?.find(
       (v: { site: string; type: string }) =>
         v.site === "YouTube" && v.type === "Trailer"
     );
+
+    // Watch providers — TMDB returns by country code
+    // We grab a few common regions and let the frontend pick
+    const providerResults = providers.results ?? {};
+    const watchProviders =
+      providerResults["US"] ??
+      providerResults["GB"] ??
+      providerResults["NG"] ??
+      Object.values(providerResults)[0] ??
+      null;
 
     return res.status(200).json({
       id: detail.id,
@@ -55,6 +69,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       revenue: detail.revenue,
       cast: credits.cast ?? [],
       trailerKey: trailer?.key ?? null,
+      // External links
+      imdb_id: external.imdb_id ?? null,
+      // Watch providers (flatrate = subscription, rent, buy)
+      watchProviders: watchProviders
+        ? {
+            link: watchProviders.link ?? null,
+            flatrate: watchProviders.flatrate ?? [],
+            rent: watchProviders.rent ?? [],
+            buy: watchProviders.buy ?? [],
+          }
+        : null,
+      // TMDB watch page as fallback
+      tmdbWatchUrl: `https://www.themoviedb.org/movie/${id}/watch`,
     });
   } catch (error) {
     console.error("movie-detail error:", error);
